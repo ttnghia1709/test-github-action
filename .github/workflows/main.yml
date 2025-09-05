@@ -31,26 +31,31 @@ jobs:
 
       - name: Install deps
         run: yarn install
+  
       - name: Build
         run: yarn build
 
-      # --- SSH setup (adds your private key to an agent) ---
-      - name: Setup SSH agent
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Add server to known_hosts
+      - name: Prepare SSH key
         run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private-key.pem
+          chmod 600 private-key.pem
 
-      # (optional) ensure the remote directory exists
-      - name: Create remote directory if needed
+      - name: Remove NextJS build folder
         run: |
-          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "mkdir -p '$REMOTE_PATH'"
+          ssh -i private-key.pem \
+              -o UserKnownHostsFile=./known_hosts \
+              ${{ SSH_USER }}@${{ SSH_HOST }} "rm -rf /home/ubuntu/test-github-action/.next && mkdir /home/ubuntu/test-github-action/.next"
 
-      # --- Deploy with rsync over SSH ---
-      - name: Deploy via rsync
+      - name: Copy NextJS build folder
         run: |
-          rsync -az --delete -e "ssh -p $SSH_PORT" "$BUILD_DIR/" "$SSH_USER@$SSH_HOST:$REMOTE_PATH/"
+          scp -i ./key.pem \
+          -o StrictHostKeyChecking=yes \
+          -o UserKnownHostsFile=./known_hosts \
+          -P ${{ SSH_PORT }} \
+          -r .next/* ${{ SSH_USER }}@${{ SSH_HOST }}:/home/ubuntu/test-github-action/.next/
+
+      - name: Install yarn dependencies in server and restart
+        run: |
+          ssh -i private-key.pem \
+              -o UserKnownHostsFile=./known_hosts \
+              ${{ SSH_USER }}@${{ SSH_HOST }} "cd /home/ubuntu/test-github-action && yarn && sudo service test-github-action restart"
