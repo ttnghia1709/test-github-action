@@ -34,7 +34,7 @@ export default async function Home() {
             Save and see your changes instantly.
           </li>
           <li>
-            Last build date: { buildData?.date }
+            Last build date: { buildData?.date } by nghiatt
           </li>
         </ol>
 
