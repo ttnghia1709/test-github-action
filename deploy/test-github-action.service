@@ -9,6 +9,7 @@ Restart=on-failure
 RestartSec=5s
 User=ubuntu
 WorkingDirectory=/home/ubuntu/test-github-action
+Environment="PATH=$PATH:/home/ubuntu/.nvm/versions/node/v20.19.5/bin"
 ExecStart=/home/ubuntu/.nvm/versions/node/v20.19.5/bin/yarn start
 
 [Install]
