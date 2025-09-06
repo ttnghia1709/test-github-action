@@ -41,3 +41,4 @@ yarn-error.log*
 next-env.d.ts
 
 build-version.json
+build_production.sh
