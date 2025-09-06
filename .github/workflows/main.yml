@@ -44,18 +44,21 @@ jobs:
         run: |
           ssh -i private-key.pem \
               -o UserKnownHostsFile=./known_hosts \
-              ${{ SSH_USER }}@${{ SSH_HOST }} "rm -rf /home/ubuntu/test-github-action/.next && mkdir /home/ubuntu/test-github-action/.next"
+              ${{ env.SSH_USER }}@${{ env.SSH_HOST }} "rm -rf /home/ubuntu/test-github-action/.next && mkdir /home/ubuntu/test-github-action/.next"
 
       - name: Copy NextJS build folder
         run: |
           scp -i ./key.pem \
           -o StrictHostKeyChecking=yes \
           -o UserKnownHostsFile=./known_hosts \
-          -P ${{ SSH_PORT }} \
-          -r .next/* ${{ SSH_USER }}@${{ SSH_HOST }}:/home/ubuntu/test-github-action/.next/
+          -P ${{ env.SSH_PORT }} \
+          -r .next/* ${{ env.SSH_USER }}@${{ env.SSH_HOST }}:/home/ubuntu/test-github-action/.next/
 
       - name: Install yarn dependencies in server and restart
         run: |
           ssh -i private-key.pem \
               -o UserKnownHostsFile=./known_hosts \
-              ${{ SSH_USER }}@${{ SSH_HOST }} "cd /home/ubuntu/test-github-action && yarn && sudo service test-github-action restart"
+              ${{ env.SSH_USER }}@${{ env.SSH_HOST }} "cd /home/ubuntu/test-github-action && yarn && sudo service test-github-action restart"
+
+      - name: echo success
+        run: echo "Run Success"
