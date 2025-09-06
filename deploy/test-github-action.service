@@ -1,0 +1,15 @@
+[Unit]
+Description=Test Github Action
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=on-failure
+RestartSec=5s
+User=ubuntu
+WorkingDirectory=/home/ubuntu/test-github-action
+ExecStart=/home/ubuntu/.nvm/versions/node/v20.19.5/bin/yarn start
+
+[Install]
+WantedBy=multi-user.target

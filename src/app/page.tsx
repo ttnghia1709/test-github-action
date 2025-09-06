@@ -1,6 +1,16 @@
 import Image from "next/image";
+import path from "path";
+import { promises as fs } from "fs";
 
-export default function Home() {
+async function getLocalJsonData() {
+  const filePath = path.join(process.cwd(), 'build-version.json'); // Adjust path as needed
+  const fileContent = await fs.readFile(filePath, 'utf8');
+  const jsonData = JSON.parse(fileContent);
+  return jsonData;
+}
+
+export default async function Home() {
+  const buildData = await getLocalJsonData();
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
@@ -22,6 +32,9 @@ export default function Home() {
           </li>
           <li className="tracking-[-.01em]">
             Save and see your changes instantly.
+          </li>
+          <li>
+            Last build date: { buildData?.date }
           </li>
         </ol>
 

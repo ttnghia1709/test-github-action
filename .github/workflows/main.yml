@@ -31,6 +31,9 @@ jobs:
 
       - name: Install deps
         run: yarn install
+      
+      - name: Run script file to get build date
+        run: node git-version.js
   
       - name: Build
         run: yarn build
@@ -48,7 +51,7 @@ jobs:
 
       - name: Copy NextJS build folder
         run: |
-          scp -i ./private-key.pem \
+          scp -i private-key.pem \
           -o StrictHostKeyChecking=yes \
           -o UserKnownHostsFile=./known_hosts \
           -P ${{ env.SSH_PORT }} \
@@ -58,7 +61,7 @@ jobs:
         run: |
           ssh -i private-key.pem \
               -o UserKnownHostsFile=./known_hosts \
-              ${{ env.SSH_USER }}@${{ env.SSH_HOST }} "cd /home/ubuntu/test-github-action && yarn && sudo service test-github-action restart"
+              ${{ env.SSH_USER }}@${{ env.SSH_HOST }} "cd /home/ubuntu/test-github-action && source ~/.nvm/nvm.sh && nvm use 20 && git pull && yarn && sudo service test-github-action restart"
 
       - name: remove key and echo success
         run: rm private-key.pem && echo "Run Success"
